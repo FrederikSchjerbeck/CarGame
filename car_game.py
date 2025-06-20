@@ -74,6 +74,7 @@ while running:
             running = False
 
     keys = pygame.key.get_pressed()
+
     if keys[pygame.K_LEFT] and car_x > SIDEWALK_WIDTH:
         car_x -= car_speed
     if keys[pygame.K_RIGHT] and car_x < WIDTH - SIDEWALK_WIDTH - CAR_WIDTH:
@@ -90,41 +91,4 @@ while running:
         obs.y += obstacle_speed
 
     # Remove off-screen obstacles
-    obstacles = [obs for obs in obstacles if obs.y < HEIGHT]
-
-    # Collision detection
-    car_rect = pygame.Rect(car_x, car_y, CAR_WIDTH, CAR_HEIGHT)
-    for obs in obstacles:
-        if car_rect.colliderect(obs):
-            running = False
-
-    # Drawing
-    screen.fill(SIDEWALK_COLOR)
-    pygame.draw.rect(screen, ROAD_COLOR, (SIDEWALK_WIDTH, 0, ROAD_WIDTH, HEIGHT))
-
-    # Lane divider lines
-    dash_length = 20
-    gap = 20
-    for i in range(1, LANE_COUNT):
-        x = SIDEWALK_WIDTH + i * LANE_WIDTH
-        y = 0
-        while y < HEIGHT:
-            pygame.draw.line(screen, WHITE, (x, y), (x, min(y + dash_length, HEIGHT)), 2)
-            y += dash_length + gap
-
-    # Draw buildings
-    for b in buildings:
-        pygame.draw.rect(screen, BUILDING_COLOR, b)
-
-    pygame.draw.rect(screen, BLUE, car_rect)
-    for obs in obstacles:
-        pygame.draw.rect(screen, RED, obs)
-
-    # Draw survival time
-    seconds = (pygame.time.get_ticks() - start_ticks) // 1000
-    text = font.render(f"Time: {seconds}s", True, BLACK)
-    screen.blit(text, (10, 10))
-
-    pygame.display.flip()
-
-pygame.quit()
+    obstacles = [obs for obs in obstacles]()

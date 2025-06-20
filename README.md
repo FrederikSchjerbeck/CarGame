@@ -22,3 +22,4 @@ python car_game.py
 ```
 
 A game window will open. Use the left and right arrow keys to move your car. Avoid the red obstacles for as long as possible. The timer in the top-left corner shows how long you have survived. The road now has four lanes with sidewalks and simple buildings on the sides.
+
