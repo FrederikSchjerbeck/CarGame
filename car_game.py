@@ -63,14 +63,21 @@ font = pygame.font.SysFont(None, 36)
 # Obstacle templates
 OBSTACLE_TEMPLATES = [
     {"width": 40, "height": 60, "color": RED, "money": -5, "equipment": 0},
-    {"width": 60, "height": 80, "color": GREEN, "money": 3, "equipment": 0},
     {"width": 30, "height": 40, "color": GREEN, "money": 1, "equipment": 0},
+    {"width": 60, "height": 80, "color": GREEN, "money": 3, "equipment": 0},
     {"width": 40, "height": 40, "color": YELLOW, "money": 0, "equipment": 1},
 ]
 
+# Relative likelihood for each obstacle type. The order corresponds to
+# OBSTACLE_TEMPLATES above. Cars are most common followed by small and large
+# money blocks and finally the yellow equipment crates.
+OBSTACLE_WEIGHTS = [5, 3, 2, 1]
+
 def create_obstacle():
     """Create a new obstacle of random type within the road area."""
-    template = random.choice(OBSTACLE_TEMPLATES)
+    # Weighted choice so that cars appear most often followed by small
+    # money, large money and equipment.
+    template = random.choices(OBSTACLE_TEMPLATES, weights=OBSTACLE_WEIGHTS, k=1)[0]
     info = template.copy()
     x_min = SIDEWALK_WIDTH
     x_max = WIDTH - SIDEWALK_WIDTH - info["width"]
