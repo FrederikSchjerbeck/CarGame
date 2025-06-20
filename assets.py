@@ -26,11 +26,11 @@ def load_sprite(
     color: Tuple[int, int, int],
     shape: str = "rect",
 ) -> pygame.Surface:
-    """Return a sprite surface from ``path`` or a colored placeholder.
+    """Return a sprite surface from `path` or a colored placeholder.
 
-    If ``path`` points to an existing image, that image is loaded and scaled to
-    ``size``. Otherwise an alpha surface is created and ``shape`` is drawn on it
-    using ``color``.
+    If `path` points to an existing image, that image is loaded and scaled to
+    `size`. Otherwise an alpha surface is created and `shape` is drawn on it
+    using `color`.
     """
     if path and os.path.exists(path):
         sprite = pygame.image.load(path).convert_alpha()

@@ -31,13 +31,14 @@ buildings on the sides.
 Cars appear most often, followed by small money, large money and finally the
 yellow equipment crates.
 
-If you hit too many red cars and your money drops below zero, a short crash
-animation plays and the game ends. Click the **Restart** button to try again.
+
 
 ## Customizing graphics
 
 The `assets.py` file contains placeholders for sprite images. Leave the paths
+
 empty and the game will draw simple car, money and crate shapes with
 transparent backgrounds. Replace the paths with PNG files to use your own
 graphics instead.
+
 
