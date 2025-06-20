@@ -31,8 +31,6 @@ buildings on the sides.
 Cars appear most often, followed by small money, large money and finally the
 yellow equipment crates.
 
-If you hit too many red cars and your money drops below zero, a short crash
-animation plays and the game ends. Click the **Restart** button to try again.
 
 ## Customizing graphics
 

@@ -69,7 +69,7 @@ for side in (0, WIDTH - SIDEWALK_WIDTH):
 # Font
 font = pygame.font.SysFont(None, 36)
 
-# Sprites - use placeholders when no images are supplied
+# Sprites
 car_surface = load_sprite(CAR_IMAGE, (CAR_WIDTH, CAR_HEIGHT), BLUE)
 OBSTACLE_SURFACES = [
     load_sprite(CAR_OBSTACLE_IMAGE, (40, 60), RED),
@@ -86,18 +86,11 @@ OBSTACLE_TEMPLATES = [
     {"width": 40, "height": 40, "color": YELLOW, "money": 0, "equipment": 1, "surface": OBSTACLE_SURFACES[3]},
 ]
 
-# Relative likelihood for each obstacle type. The order corresponds to
-# OBSTACLE_TEMPLATES above. Cars are most common followed by small and large
-# money blocks and finally the yellow equipment crates.
-OBSTACLE_WEIGHTS = [5, 3, 2, 1]
-
-# Duration of the crash animation in frames
+OBSTACLE_WEIGHTS = [5, 3, 2, 1]  # relative likelihood
 CRASH_ANIMATION_FRAMES = 30
 
 def create_obstacle():
     """Create a new obstacle of random type within the road area."""
-    # Weighted choice so that cars appear most often followed by small
-    # money, large money and equipment.
     template = random.choices(OBSTACLE_TEMPLATES, weights=OBSTACLE_WEIGHTS, k=1)[0]
     info = template.copy()
     x_min = SIDEWALK_WIDTH
@@ -108,20 +101,18 @@ def create_obstacle():
     return info
 
 def main() -> None:
-    """Run the main game loop."""
     global car_x, car_y, money, equipment, obstacles
 
     running = True
     spawn_timer = 0
     start_ticks = pygame.time.get_ticks()
 
-    game_state = "playing"  # playing, crashing, game_over
+    game_state = "playing"
     crash_timer = 0
     crash_obstacle_rect = None
     restart_rect = None
 
-    def reset_game() -> None:
-        """Reset all gameplay variables to start a new run."""
+    def reset_game():
         nonlocal spawn_timer, start_ticks, game_state, crash_timer, crash_obstacle_rect, restart_rect
         global car_x, car_y, money, equipment, obstacles
         car_x = SIDEWALK_WIDTH + ROAD_WIDTH // 2 - CAR_WIDTH // 2
@@ -136,7 +127,6 @@ def main() -> None:
         crash_obstacle_rect = None
         restart_rect = None
 
-
     while running:
         dt = clock.tick(60)
         for event in pygame.event.get():
@@ -147,7 +137,6 @@ def main() -> None:
                     reset_game()
 
         if game_state == "game_over":
-            # Draw the game over screen and wait for restart.
             screen.fill(BLACK)
             over_text = font.render("You crashed, and you're broke", True, WHITE)
             text_rect = over_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 20))
@@ -170,30 +159,24 @@ def main() -> None:
             if keys[pygame.K_DOWN] and car_y < HEIGHT - CAR_HEIGHT:
                 car_y += car_speed
 
-        # Spawn obstacles
+        # Obstacle management
         if game_state == "playing":
             spawn_timer += dt
             if spawn_timer > 1000:
                 spawn_timer = 0
                 obstacles.append(create_obstacle())
 
-        # Increase speed over time
-        elapsed_sec = (pygame.time.get_ticks() - start_ticks) / 1000
-        obstacle_speed = BASE_OBSTACLE_SPEED + elapsed_sec * 0.1
+            elapsed_sec = (pygame.time.get_ticks() - start_ticks) / 1000
+            obstacle_speed = BASE_OBSTACLE_SPEED + elapsed_sec * 0.1
 
-        # Move obstacles
-        if game_state == "playing":
             for obs in obstacles:
                 obs["rect"].y += obstacle_speed
-
-            # Remove off-screen obstacles
             obstacles[:] = [obs for obs in obstacles if obs["rect"].y < HEIGHT]
 
-        # Car bounce animation
+        # Car animation and collision
         car_offset = int(math.sin(pygame.time.get_ticks() * 0.02) * 2)
         car_rect = pygame.Rect(car_x, car_y + car_offset, CAR_WIDTH, CAR_HEIGHT)
 
-        # Collision detection
         if game_state == "playing":
             for obs in obstacles[:]:
                 if car_rect.colliderect(obs["rect"]):
@@ -204,9 +187,7 @@ def main() -> None:
                         crash_obstacle_rect = obs["rect"].copy()
                         game_state = "crashing"
                         crash_timer = 0
-                    
 
-        # Update crash state timing
         if game_state == "crashing":
             crash_timer += 1
             if crash_timer > CRASH_ANIMATION_FRAMES:
@@ -214,23 +195,17 @@ def main() -> None:
 
         # Drawing
         screen.fill(BLACK)
-        # Sidewalks
         pygame.draw.rect(screen, SIDEWALK_COLOR, (0, 0, SIDEWALK_WIDTH, HEIGHT))
         pygame.draw.rect(screen, SIDEWALK_COLOR, (WIDTH - SIDEWALK_WIDTH, 0, SIDEWALK_WIDTH, HEIGHT))
 
-        # Buildings
         for rect in buildings:
             pygame.draw.rect(screen, BUILDING_COLOR, rect)
 
-        # Road
         pygame.draw.rect(screen, ROAD_COLOR, (SIDEWALK_WIDTH, 0, ROAD_WIDTH, HEIGHT))
-
-        # Lane lines
         for i in range(1, LANE_COUNT):
             x = SIDEWALK_WIDTH + i * LANE_WIDTH
             pygame.draw.line(screen, WHITE, (x, 0), (x, HEIGHT), 2)
 
-        # Car and crash obstacle
         if game_state == "crashing" and crash_obstacle_rect:
             jitter = random.randint(-3, 3)
             crash_car = car_rect.move(jitter, jitter)
@@ -240,15 +215,13 @@ def main() -> None:
         else:
             screen.blit(car_surface, car_rect)
 
-        # Obstacles
         for obs in obstacles:
             screen.blit(obs["surface"], obs["rect"])
 
-        # Timer
+        elapsed_sec = (pygame.time.get_ticks() - start_ticks) / 1000
         timer_surface = font.render(f"{elapsed_sec:.1f}", True, WHITE)
         screen.blit(timer_surface, (10, 10))
 
-        # Scores
         money_surface = font.render(f"Money: {money}", True, WHITE)
         equipment_surface = font.render(f"Equip: {equipment}", True, WHITE)
         screen.blit(money_surface, (WIDTH - money_surface.get_width() - 10, 10))
