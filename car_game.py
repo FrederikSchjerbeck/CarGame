@@ -88,7 +88,7 @@ def create_obstacle():
 
 def main() -> None:
     """Run the main game loop."""
-    global car_x, money, equipment
+    global car_x, car_y, money, equipment
 
     running = True
     spawn_timer = 0
@@ -105,6 +105,10 @@ def main() -> None:
             car_x -= car_speed
         if keys[pygame.K_RIGHT] and car_x < WIDTH - SIDEWALK_WIDTH - CAR_WIDTH:
             car_x += car_speed
+        if keys[pygame.K_UP] and car_y > 0:
+            car_y -= car_speed
+        if keys[pygame.K_DOWN] and car_y < HEIGHT - CAR_HEIGHT:
+            car_y += car_speed
 
         # Spawn obstacles
         spawn_timer += dt

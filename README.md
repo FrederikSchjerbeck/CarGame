@@ -1,6 +1,6 @@
 # CarGame
 
-This is a simple Pygame-based car game. Steer your car left and right to avoid oncoming obstacles.
+This is a simple Pygame-based car game. Steer your car to avoid oncoming obstacles using the arrow keys.
 
 ## Requirements
 
@@ -21,7 +21,7 @@ Run the main game script:
 python car_game.py
 ```
 
-A game window will open. Use the left and right arrow keys to move your car.
+A game window will open. Use the arrow keys to move your car freely around the screen.
 Collect the green money blocks to earn points and grab yellow equipment boxes
 for extra gear. Hitting a red obstacle subtracts money. The current scores are
 displayed in the top-right corner. The timer in the top-left corner shows how
