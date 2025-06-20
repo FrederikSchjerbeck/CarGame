@@ -105,6 +105,7 @@ while running:
         obs["rect"].y += obstacle_speed
 
     # Remove off-screen obstacles
+
     obstacles = [obs for obs in obstacles if obs["rect"].y < HEIGHT]
 
     # Check collisions
@@ -114,6 +115,13 @@ while running:
             money += obs["money"]
             equipment += obs["equipment"]
             obstacles.remove(obs)
+
+    # Check collisions
+    car_rect = pygame.Rect(car_x, car_y, CAR_WIDTH, CAR_HEIGHT)
+    for obs in obstacles:
+        if car_rect.colliderect(obs):
+            running = False
+
 
     # Drawing
     screen.fill(BLACK)
@@ -139,12 +147,17 @@ while running:
 
     # Draw obstacles
     for obs in obstacles:
+
         pygame.draw.rect(screen, obs["color"], obs["rect"])
+
+
+
 
     # Draw timer
     elapsed_sec = (pygame.time.get_ticks() - start_ticks) / 1000
     timer_surface = font.render(f"{elapsed_sec:.1f}", True, WHITE)
     screen.blit(timer_surface, (10, 10))
+
 
     # Draw scores
     money_surface = font.render(f"Money: {money}", True, WHITE)
@@ -152,6 +165,7 @@ while running:
     screen.blit(money_surface, (WIDTH - money_surface.get_width() - 10, 10))
     screen.blit(equipment_surface, (WIDTH - equipment_surface.get_width() - 10,
                                     40))
+
 
     pygame.display.flip()
 
