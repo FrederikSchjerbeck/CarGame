@@ -2,6 +2,15 @@ import math
 import pygame
 import random
 
+from assets import (
+    load_sprite,
+    CAR_IMAGE,
+    CAR_OBSTACLE_IMAGE,
+    SMALL_MONEY_IMAGE,
+    LARGE_MONEY_IMAGE,
+    EQUIPMENT_IMAGE,
+)
+
 # Initialize Pygame
 pygame.init()
 
@@ -60,17 +69,33 @@ for side in (0, WIDTH - SIDEWALK_WIDTH):
 # Font
 font = pygame.font.SysFont(None, 36)
 
+# Sprites - use placeholders when no images are supplied
+car_surface = load_sprite(CAR_IMAGE, (CAR_WIDTH, CAR_HEIGHT), BLUE)
+OBSTACLE_SURFACES = [
+    load_sprite(CAR_OBSTACLE_IMAGE, (40, 60), RED),
+    load_sprite(SMALL_MONEY_IMAGE, (30, 40), GREEN),
+    load_sprite(LARGE_MONEY_IMAGE, (60, 80), GREEN),
+    load_sprite(EQUIPMENT_IMAGE, (40, 40), YELLOW),
+]
+
 # Obstacle templates
 OBSTACLE_TEMPLATES = [
-    {"width": 40, "height": 60, "color": RED, "money": -5, "equipment": 0},
-    {"width": 60, "height": 80, "color": GREEN, "money": 3, "equipment": 0},
-    {"width": 30, "height": 40, "color": GREEN, "money": 1, "equipment": 0},
-    {"width": 40, "height": 40, "color": YELLOW, "money": 0, "equipment": 1},
+    {"width": 40, "height": 60, "color": RED, "money": -5, "equipment": 0, "surface": OBSTACLE_SURFACES[0]},
+    {"width": 30, "height": 40, "color": GREEN, "money": 1, "equipment": 0, "surface": OBSTACLE_SURFACES[1]},
+    {"width": 60, "height": 80, "color": GREEN, "money": 3, "equipment": 0, "surface": OBSTACLE_SURFACES[2]},
+    {"width": 40, "height": 40, "color": YELLOW, "money": 0, "equipment": 1, "surface": OBSTACLE_SURFACES[3]},
 ]
+
+# Relative likelihood for each obstacle type. The order corresponds to
+# OBSTACLE_TEMPLATES above. Cars are most common followed by small and large
+# money blocks and finally the yellow equipment crates.
+OBSTACLE_WEIGHTS = [5, 3, 2, 1]
 
 def create_obstacle():
     """Create a new obstacle of random type within the road area."""
-    template = random.choice(OBSTACLE_TEMPLATES)
+    # Weighted choice so that cars appear most often followed by small
+    # money, large money and equipment.
+    template = random.choices(OBSTACLE_TEMPLATES, weights=OBSTACLE_WEIGHTS, k=1)[0]
     info = template.copy()
     x_min = SIDEWALK_WIDTH
     x_max = WIDTH - SIDEWALK_WIDTH - info["width"]
@@ -81,7 +106,7 @@ def create_obstacle():
 
 def main() -> None:
     """Run the main game loop."""
-    global car_x, money, equipment
+    global car_x, car_y, money, equipment
 
     running = True
     spawn_timer = 0
@@ -98,6 +123,10 @@ def main() -> None:
             car_x -= car_speed
         if keys[pygame.K_RIGHT] and car_x < WIDTH - SIDEWALK_WIDTH - CAR_WIDTH:
             car_x += car_speed
+        if keys[pygame.K_UP] and car_y > 0:
+            car_y -= car_speed
+        if keys[pygame.K_DOWN] and car_y < HEIGHT - CAR_HEIGHT:
+            car_y += car_speed
 
         # Spawn obstacles
         spawn_timer += dt
@@ -147,11 +176,11 @@ def main() -> None:
             pygame.draw.line(screen, WHITE, (x, 0), (x, HEIGHT), 2)
 
         # Car
-        pygame.draw.rect(screen, BLUE, car_rect)
+        screen.blit(car_surface, car_rect)
 
         # Obstacles
         for obs in obstacles:
-            pygame.draw.rect(screen, obs["color"], obs["rect"])
+            screen.blit(obs["surface"], obs["rect"])
 
         # Timer
         timer_surface = font.render(f"{elapsed_sec:.1f}", True, WHITE)
