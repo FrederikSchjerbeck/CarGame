@@ -56,7 +56,7 @@ obstacles = []
 money = 0
 equipment = 0
 
-# Pre-generate buildings
+# Buildings
 buildings = []
 for side in (0, WIDTH - SIDEWALK_WIDTH):
     y_pos = 0
@@ -69,13 +69,13 @@ for side in (0, WIDTH - SIDEWALK_WIDTH):
 # Font
 font = pygame.font.SysFont(None, 36)
 
-# Sprites
-car_surface = load_sprite(CAR_IMAGE, (CAR_WIDTH, CAR_HEIGHT), BLUE)
+# Sprites - use placeholders when no images are supplied
+car_surface = load_sprite(CAR_IMAGE, (CAR_WIDTH, CAR_HEIGHT), BLUE, "car")
 OBSTACLE_SURFACES = [
-    load_sprite(CAR_OBSTACLE_IMAGE, (40, 60), RED),
-    load_sprite(SMALL_MONEY_IMAGE, (30, 40), GREEN),
-    load_sprite(LARGE_MONEY_IMAGE, (60, 80), GREEN),
-    load_sprite(EQUIPMENT_IMAGE, (40, 40), YELLOW),
+    load_sprite(CAR_OBSTACLE_IMAGE, (40, 60), RED, "car"),
+    load_sprite(SMALL_MONEY_IMAGE, (30, 40), GREEN, "money"),
+    load_sprite(LARGE_MONEY_IMAGE, (60, 80), GREEN, "money"),
+    load_sprite(EQUIPMENT_IMAGE, (40, 40), YELLOW, "equipment"),
 ]
 
 # Obstacle templates
@@ -86,7 +86,8 @@ OBSTACLE_TEMPLATES = [
     {"width": 40, "height": 40, "color": YELLOW, "money": 0, "equipment": 1, "surface": OBSTACLE_SURFACES[3]},
 ]
 
-OBSTACLE_WEIGHTS = [5, 3, 2, 1]  # relative likelihood
+# Relative obstacle spawn frequency
+OBSTACLE_WEIGHTS = [5, 3, 2, 1]
 CRASH_ANIMATION_FRAMES = 30
 
 def create_obstacle():
@@ -106,7 +107,6 @@ def main() -> None:
     running = True
     spawn_timer = 0
     start_ticks = pygame.time.get_ticks()
-
     game_state = "playing"
     crash_timer = 0
     crash_obstacle_rect = None
@@ -159,7 +159,6 @@ def main() -> None:
             if keys[pygame.K_DOWN] and car_y < HEIGHT - CAR_HEIGHT:
                 car_y += car_speed
 
-        # Obstacle management
         if game_state == "playing":
             spawn_timer += dt
             if spawn_timer > 1000:
@@ -173,7 +172,6 @@ def main() -> None:
                 obs["rect"].y += obstacle_speed
             obstacles[:] = [obs for obs in obstacles if obs["rect"].y < HEIGHT]
 
-        # Car animation and collision
         car_offset = int(math.sin(pygame.time.get_ticks() * 0.02) * 2)
         car_rect = pygame.Rect(car_x, car_y + car_offset, CAR_WIDTH, CAR_HEIGHT)
 

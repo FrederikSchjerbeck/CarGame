@@ -32,9 +32,13 @@ Cars appear most often, followed by small money, large money and finally the
 yellow equipment crates.
 
 
+
 ## Customizing graphics
 
 The `assets.py` file contains placeholders for sprite images. Leave the paths
-empty to use the built‑in colored rectangles, or replace them with file paths to
-PNG images to give the game custom graphics.
+
+empty and the game will draw simple car, money and crate shapes with
+transparent backgrounds. Replace the paths with PNG files to use your own
+graphics instead.
+
 
