@@ -1,3 +1,4 @@
+import math
 import pygame
 import random
 
@@ -38,16 +39,15 @@ car_y = HEIGHT - CAR_HEIGHT - 10
 car_speed = 5
 
 # Obstacle properties
-OBSTACLE_WIDTH = 40
-OBSTACLE_HEIGHT = 60
-obstacle_speed = 5
+BASE_OBSTACLE_SPEED = 5
+obstacle_speed = BASE_OBSTACLE_SPEED
 obstacles = []
 
 # Scoring
 money = 0
 equipment = 0
 
-# Pre-generate simple buildings along the sidewalks
+# Pre-generate buildings
 buildings = []
 for side in (0, WIDTH - SIDEWALK_WIDTH):
     y_pos = 0
@@ -60,18 +60,18 @@ for side in (0, WIDTH - SIDEWALK_WIDTH):
 # Font
 font = pygame.font.SysFont(None, 36)
 
+# Obstacle templates
+OBSTACLE_TEMPLATES = [
+    {"width": 40, "height": 60, "color": RED, "money": -5, "equipment": 0},
+    {"width": 60, "height": 80, "color": GREEN, "money": 3, "equipment": 0},
+    {"width": 30, "height": 40, "color": GREEN, "money": 1, "equipment": 0},
+    {"width": 40, "height": 40, "color": YELLOW, "money": 0, "equipment": 1},
+]
 
 def create_obstacle():
     """Create a new obstacle of random type within the road area."""
-    obstacle_types = [
-
-        {"width": 40, "height": 60, "color": RED, "money": -5, "equipment": 0},
-        {"width": 60, "height": 80, "color": GREEN, "money": 3, "equipment": 0},
-        {"width": 30, "height": 40, "color": GREEN, "money": 1, "equipment": 0},
-        {"width": 40, "height": 40, "color": YELLOW, "money": 0, "equipment": 1},
-
-    ]
-    info = random.choice(obstacle_types)
+    template = random.choice(OBSTACLE_TEMPLATES)
+    info = template.copy()
     x_min = SIDEWALK_WIDTH
     x_max = WIDTH - SIDEWALK_WIDTH - info["width"]
     x = random.randint(x_min, x_max)
@@ -101,9 +101,13 @@ def main() -> None:
 
         # Spawn obstacles
         spawn_timer += dt
-        if spawn_timer > 1000:  # Spawn every second
+        if spawn_timer > 1000:
             spawn_timer = 0
             obstacles.append(create_obstacle())
+
+        # Increase speed over time
+        elapsed_sec = (pygame.time.get_ticks() - start_ticks) / 1000
+        obstacle_speed = BASE_OBSTACLE_SPEED + elapsed_sec * 0.1
 
         # Move obstacles
         for obs in obstacles:
@@ -112,8 +116,11 @@ def main() -> None:
         # Remove off-screen obstacles
         obstacles[:] = [obs for obs in obstacles if obs["rect"].y < HEIGHT]
 
-        # Check collisions
-        car_rect = pygame.Rect(car_x, car_y, CAR_WIDTH, CAR_HEIGHT)
+        # Car bounce animation
+        car_offset = int(math.sin(pygame.time.get_ticks() * 0.02) * 2)
+        car_rect = pygame.Rect(car_x, car_y + car_offset, CAR_WIDTH, CAR_HEIGHT)
+
+        # Collision detection
         for obs in obstacles[:]:
             if car_rect.colliderect(obs["rect"]):
                 money += obs["money"]
@@ -123,35 +130,34 @@ def main() -> None:
         # Drawing
         screen.fill(BLACK)
 
-        # Draw sidewalks
+        # Sidewalks
         pygame.draw.rect(screen, SIDEWALK_COLOR, (0, 0, SIDEWALK_WIDTH, HEIGHT))
         pygame.draw.rect(screen, SIDEWALK_COLOR, (WIDTH - SIDEWALK_WIDTH, 0, SIDEWALK_WIDTH, HEIGHT))
 
-        # Draw buildings
+        # Buildings
         for rect in buildings:
             pygame.draw.rect(screen, BUILDING_COLOR, rect)
 
-        # Draw road
+        # Road
         pygame.draw.rect(screen, ROAD_COLOR, (SIDEWALK_WIDTH, 0, ROAD_WIDTH, HEIGHT))
 
-        # Draw lane lines
+        # Lane lines
         for i in range(1, LANE_COUNT):
             x = SIDEWALK_WIDTH + i * LANE_WIDTH
             pygame.draw.line(screen, WHITE, (x, 0), (x, HEIGHT), 2)
 
-        # Draw car
+        # Car
         pygame.draw.rect(screen, BLUE, car_rect)
 
-        # Draw obstacles
+        # Obstacles
         for obs in obstacles:
             pygame.draw.rect(screen, obs["color"], obs["rect"])
 
-        # Draw timer
-        elapsed_sec = (pygame.time.get_ticks() - start_ticks) / 1000
+        # Timer
         timer_surface = font.render(f"{elapsed_sec:.1f}", True, WHITE)
         screen.blit(timer_surface, (10, 10))
 
-        # Draw scores
+        # Scores
         money_surface = font.render(f"Money: {money}", True, WHITE)
         equipment_surface = font.render(f"Equip: {equipment}", True, WHITE)
         screen.blit(money_surface, (WIDTH - money_surface.get_width() - 10, 10))
@@ -160,7 +166,6 @@ def main() -> None:
         pygame.display.flip()
 
     pygame.quit()
-
 
 if __name__ == "__main__":
     main()
