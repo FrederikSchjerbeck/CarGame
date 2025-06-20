@@ -91,4 +91,45 @@ while running:
         obs.y += obstacle_speed
 
     # Remove off-screen obstacles
-    obstacles = [obs for obs in obstacles]()
+    obstacles = [obs for obs in obstacles if obs.y < HEIGHT]
+
+    # Check collisions
+    car_rect = pygame.Rect(car_x, car_y, CAR_WIDTH, CAR_HEIGHT)
+    for obs in obstacles:
+        if car_rect.colliderect(obs):
+            running = False
+
+    # Drawing
+    screen.fill(BLACK)
+
+    # Draw sidewalks
+    pygame.draw.rect(screen, SIDEWALK_COLOR, (0, 0, SIDEWALK_WIDTH, HEIGHT))
+    pygame.draw.rect(screen, SIDEWALK_COLOR, (WIDTH - SIDEWALK_WIDTH, 0, SIDEWALK_WIDTH, HEIGHT))
+
+    # Draw buildings
+    for rect in buildings:
+        pygame.draw.rect(screen, BUILDING_COLOR, rect)
+
+    # Draw road
+    pygame.draw.rect(screen, ROAD_COLOR, (SIDEWALK_WIDTH, 0, ROAD_WIDTH, HEIGHT))
+
+    # Draw lane lines
+    for i in range(1, LANE_COUNT):
+        x = SIDEWALK_WIDTH + i * LANE_WIDTH
+        pygame.draw.line(screen, WHITE, (x, 0), (x, HEIGHT), 2)
+
+    # Draw car
+    pygame.draw.rect(screen, BLUE, car_rect)
+
+    # Draw obstacles
+    for obs in obstacles:
+        pygame.draw.rect(screen, RED, obs)
+
+    # Draw timer
+    elapsed_sec = (pygame.time.get_ticks() - start_ticks) / 1000
+    timer_surface = font.render(f"{elapsed_sec:.1f}", True, WHITE)
+    screen.blit(timer_surface, (10, 10))
+
+    pygame.display.flip()
+
+pygame.quit()
