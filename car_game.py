@@ -17,10 +17,21 @@ BLACK = (0, 0, 0)
 RED = (200, 0, 0)
 BLUE = (0, 0, 255)
 
+# Road and scenery colors
+ROAD_COLOR = (40, 40, 40)
+SIDEWALK_COLOR = (120, 120, 120)
+BUILDING_COLOR = (170, 170, 170)
+
+# Road layout
+SIDEWALK_WIDTH = 50
+ROAD_WIDTH = WIDTH - 2 * SIDEWALK_WIDTH
+LANE_COUNT = 4
+LANE_WIDTH = ROAD_WIDTH // LANE_COUNT
+
 # Car properties
 CAR_WIDTH = 40
 CAR_HEIGHT = 60
-car_x = WIDTH // 2 - CAR_WIDTH // 2
+car_x = SIDEWALK_WIDTH + ROAD_WIDTH // 2 - CAR_WIDTH // 2
 car_y = HEIGHT - CAR_HEIGHT - 10
 car_speed = 5
 
@@ -30,11 +41,24 @@ OBSTACLE_HEIGHT = 60
 obstacle_speed = 5
 obstacles = []
 
+# Pre-generate simple buildings along the sidewalks
+buildings = []
+for side in (0, WIDTH - SIDEWALK_WIDTH):
+    y_pos = 0
+    while y_pos < HEIGHT:
+        b_height = random.randint(60, 150)
+        rect = pygame.Rect(side, y_pos, SIDEWALK_WIDTH, b_height)
+        buildings.append(rect)
+        y_pos += b_height + 20
+
 # Font
 font = pygame.font.SysFont(None, 36)
 
 def create_obstacle():
-    x = random.randint(0, WIDTH - OBSTACLE_WIDTH)
+    """Create a new obstacle within the road area."""
+    x_min = SIDEWALK_WIDTH
+    x_max = WIDTH - SIDEWALK_WIDTH - OBSTACLE_WIDTH
+    x = random.randint(x_min, x_max)
     rect = pygame.Rect(x, -OBSTACLE_HEIGHT, OBSTACLE_WIDTH, OBSTACLE_HEIGHT)
     return rect
 
@@ -50,9 +74,10 @@ while running:
             running = False
 
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT] and car_x > 0:
+
+    if keys[pygame.K_LEFT] and car_x > SIDEWALK_WIDTH:
         car_x -= car_speed
-    if keys[pygame.K_RIGHT] and car_x < WIDTH - CAR_WIDTH:
+    if keys[pygame.K_RIGHT] and car_x < WIDTH - SIDEWALK_WIDTH - CAR_WIDTH:
         car_x += car_speed
 
     # Spawn obstacles
@@ -66,25 +91,4 @@ while running:
         obs.y += obstacle_speed
 
     # Remove off-screen obstacles
-    obstacles = [obs for obs in obstacles if obs.y < HEIGHT]
-
-    # Collision detection
-    car_rect = pygame.Rect(car_x, car_y, CAR_WIDTH, CAR_HEIGHT)
-    for obs in obstacles:
-        if car_rect.colliderect(obs):
-            running = False
-
-    # Drawing
-    screen.fill(WHITE)
-    pygame.draw.rect(screen, BLUE, car_rect)
-    for obs in obstacles:
-        pygame.draw.rect(screen, RED, obs)
-
-    # Draw survival time
-    seconds = (pygame.time.get_ticks() - start_ticks) // 1000
-    text = font.render(f"Time: {seconds}s", True, BLACK)
-    screen.blit(text, (10, 10))
-
-    pygame.display.flip()
-
-pygame.quit()
+    obstacles = [obs for obs in obstacles]()
