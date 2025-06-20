@@ -80,10 +80,13 @@ OBSTACLE_SURFACES = [
 
 # Obstacle templates
 OBSTACLE_TEMPLATES = [
+
     {"width": 40, "height": 60, "color": RED, "money": -5, "equipment": 0, "surface": OBSTACLE_SURFACES[0]},
     {"width": 30, "height": 40, "color": GREEN, "money": 1, "equipment": 0, "surface": OBSTACLE_SURFACES[1]},
     {"width": 60, "height": 80, "color": GREEN, "money": 3, "equipment": 0, "surface": OBSTACLE_SURFACES[2]},
-    {"width": 40, "height": 40, "color": YELLOW, "money": 0, "equipment": 1, "surface": OBSTACLE_SURFACES[3]},
+    {"width": 40, "height": 40, "color": YELLOW, "money": 0, "equipment": 1, "surface": OBSTACLE_SURFACES[3]}
+
+
 ]
 
 # Relative likelihood for each obstacle type. The order corresponds to
