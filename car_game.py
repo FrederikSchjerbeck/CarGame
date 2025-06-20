@@ -64,34 +64,12 @@ font = pygame.font.SysFont(None, 36)
 def create_obstacle():
     """Create a new obstacle of random type within the road area."""
     obstacle_types = [
-        {
-            "width": 40,
-            "height": 60,
-            "color": RED,
-            "money": -5,
-            "equipment": 0,
-        },
-        {
-            "width": 60,
-            "height": 80,
-            "color": GREEN,
-            "money": 3,
-            "equipment": 0,
-        },
-        {
-            "width": 30,
-            "height": 40,
-            "color": GREEN,
-            "money": 1,
-            "equipment": 0,
-        },
-        {
-            "width": 40,
-            "height": 40,
-            "color": YELLOW,
-            "money": 0,
-            "equipment": 1,
-        },
+
+        {"width": 40, "height": 60, "color": RED, "money": -5, "equipment": 0},
+        {"width": 60, "height": 80, "color": GREEN, "money": 3, "equipment": 0},
+        {"width": 30, "height": 40, "color": GREEN, "money": 1, "equipment": 0},
+        {"width": 40, "height": 40, "color": YELLOW, "money": 0, "equipment": 1},
+
     ]
     info = random.choice(obstacle_types)
     x_min = SIDEWALK_WIDTH
@@ -100,7 +78,6 @@ def create_obstacle():
     rect = pygame.Rect(x, -info["height"], info["width"], info["height"])
     info["rect"] = rect
     return info
-
 
 def main() -> None:
     """Run the main game loop."""
@@ -117,7 +94,6 @@ def main() -> None:
                 running = False
 
         keys = pygame.key.get_pressed()
-
         if keys[pygame.K_LEFT] and car_x > SIDEWALK_WIDTH:
             car_x -= car_speed
         if keys[pygame.K_RIGHT] and car_x < WIDTH - SIDEWALK_WIDTH - CAR_WIDTH:
@@ -148,21 +124,15 @@ def main() -> None:
         screen.fill(BLACK)
 
         # Draw sidewalks
-        pygame.draw.rect(
-            screen,
-            SIDEWALK_COLOR,
-            (0, 0, SIDEWALK_WIDTH, HEIGHT),
-        )
-        right_side = (WIDTH - SIDEWALK_WIDTH, 0, SIDEWALK_WIDTH, HEIGHT)
-        pygame.draw.rect(screen, SIDEWALK_COLOR, right_side)
+        pygame.draw.rect(screen, SIDEWALK_COLOR, (0, 0, SIDEWALK_WIDTH, HEIGHT))
+        pygame.draw.rect(screen, SIDEWALK_COLOR, (WIDTH - SIDEWALK_WIDTH, 0, SIDEWALK_WIDTH, HEIGHT))
 
         # Draw buildings
         for rect in buildings:
             pygame.draw.rect(screen, BUILDING_COLOR, rect)
 
         # Draw road
-        road_rect = (SIDEWALK_WIDTH, 0, ROAD_WIDTH, HEIGHT)
-        pygame.draw.rect(screen, ROAD_COLOR, road_rect)
+        pygame.draw.rect(screen, ROAD_COLOR, (SIDEWALK_WIDTH, 0, ROAD_WIDTH, HEIGHT))
 
         # Draw lane lines
         for i in range(1, LANE_COUNT):
@@ -184,14 +154,8 @@ def main() -> None:
         # Draw scores
         money_surface = font.render(f"Money: {money}", True, WHITE)
         equipment_surface = font.render(f"Equip: {equipment}", True, WHITE)
-        screen.blit(
-            money_surface,
-            (WIDTH - money_surface.get_width() - 10, 10),
-        )
-        screen.blit(
-            equipment_surface,
-            (WIDTH - equipment_surface.get_width() - 10, 40),
-        )
+        screen.blit(money_surface, (WIDTH - money_surface.get_width() - 10, 10))
+        screen.blit(equipment_surface, (WIDTH - equipment_surface.get_width() - 10, 40))
 
         pygame.display.flip()
 
