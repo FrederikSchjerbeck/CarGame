@@ -2,6 +2,15 @@ import math
 import pygame
 import random
 
+from assets import (
+    load_sprite,
+    CAR_IMAGE,
+    CAR_OBSTACLE_IMAGE,
+    SMALL_MONEY_IMAGE,
+    LARGE_MONEY_IMAGE,
+    EQUIPMENT_IMAGE,
+)
+
 # Initialize Pygame
 pygame.init()
 
@@ -60,12 +69,24 @@ for side in (0, WIDTH - SIDEWALK_WIDTH):
 # Font
 font = pygame.font.SysFont(None, 36)
 
+# Sprites - use placeholders when no images are supplied
+car_surface = load_sprite(CAR_IMAGE, (CAR_WIDTH, CAR_HEIGHT), BLUE)
+OBSTACLE_SURFACES = [
+    load_sprite(CAR_OBSTACLE_IMAGE, (40, 60), RED),
+    load_sprite(SMALL_MONEY_IMAGE, (30, 40), GREEN),
+    load_sprite(LARGE_MONEY_IMAGE, (60, 80), GREEN),
+    load_sprite(EQUIPMENT_IMAGE, (40, 40), YELLOW),
+]
+
 # Obstacle templates
 OBSTACLE_TEMPLATES = [
-    {"width": 40, "height": 60, "color": RED, "money": -5, "equipment": 0},
-    {"width": 30, "height": 40, "color": GREEN, "money": 1, "equipment": 0},
-    {"width": 60, "height": 80, "color": GREEN, "money": 3, "equipment": 0},
-    {"width": 40, "height": 40, "color": YELLOW, "money": 0, "equipment": 1},
+
+    {"width": 40, "height": 60, "color": RED, "money": -5, "equipment": 0, "surface": OBSTACLE_SURFACES[0]},
+    {"width": 30, "height": 40, "color": GREEN, "money": 1, "equipment": 0, "surface": OBSTACLE_SURFACES[1]},
+    {"width": 60, "height": 80, "color": GREEN, "money": 3, "equipment": 0, "surface": OBSTACLE_SURFACES[2]},
+    {"width": 40, "height": 40, "color": YELLOW, "money": 0, "equipment": 1, "surface": OBSTACLE_SURFACES[3]}
+
+
 ]
 
 # Relative likelihood for each obstacle type. The order corresponds to
@@ -158,11 +179,11 @@ def main() -> None:
             pygame.draw.line(screen, WHITE, (x, 0), (x, HEIGHT), 2)
 
         # Car
-        pygame.draw.rect(screen, BLUE, car_rect)
+        screen.blit(car_surface, car_rect)
 
         # Obstacles
         for obs in obstacles:
-            pygame.draw.rect(screen, obs["color"], obs["rect"])
+            screen.blit(obs["surface"], obs["rect"])
 
         # Timer
         timer_surface = font.render(f"{elapsed_sec:.1f}", True, WHITE)
